@@ -21,8 +21,8 @@ on:
           - 21.02.5
           - 19.07.10
           - 18.06.9
-      openwrt_soc:
-        description: "Select Amlogic SoC"
+      openwrt_board:
+        description: "Select Amlogic board"
         required: false
         default: "s905x3_s905d_s912"
         type: choice
@@ -87,7 +87,9 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc 2>/dev/null
+          docker rmi `docker images -q`
+          sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android 2>/dev/null
+          sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* adoptopenjdk* mysql* php* mongodb* dotnet* moby* snapd* || true
           sudo -E apt-get -qq update
           sudo -E apt-get -qq install $(curl -fsSL https://is.gd/depend_ubuntu2204_openwrt)
           sudo -E apt-get -qq autoremove --purge
@@ -110,7 +112,7 @@ jobs:
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
           openwrt_path: openwrt/bin/targets/*/*/*rootfs.tar.gz
-          openwrt_soc: ${{ github.event.inputs.openwrt_soc }}
+          openwrt_board: ${{ github.event.inputs.openwrt_board }}
           openwrt_kernel: ${{ github.event.inputs.openwrt_kernel }}
           auto_kernel: ${{ github.event.inputs.auto_kernel }}
           openwrt_size: ${{ github.event.inputs.openwrt_size }}
